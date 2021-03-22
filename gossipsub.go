@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"sort"
 	"time"
+	"strings"
 
 	pb "github.com/libp2p/go-libp2p-pubsub/pb"
 
@@ -881,11 +882,28 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 		return
 	}
 
+	// [jianghan] add debug
+	// "/fil/blocks/<netid>"
+	// catch block propogador
+	debug_catch := false
+	flood_catch_count := 0
+	normal_catch_count := 0
+	if strings.Contains(topic, "blocks") {
+		debug_catch = true
+	}
+	// [/jianghan]
+	
 	if gs.floodPublish && from == gs.p.host.ID() {
 		for p := range tmap {
 			_, direct := gs.direct[p]
 			if direct || gs.score.Score(p) >= gs.publishThreshold {
 				tosend[p] = struct{}{}
+				
+				//[jianghan]
+				if debug_catch && direct {
+					flood_catch_count++
+				}
+				//[/jianghan]				
 			}
 		}
 	} else {
@@ -894,6 +912,12 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 			_, inTopic := tmap[p]
 			if inTopic {
 				tosend[p] = struct{}{}
+				
+				//[jianghan]
+				if debug_catch {
+					normal_catch_count++
+				}
+				//[/jianghan]				
 			}
 		}
 
@@ -937,6 +961,12 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 
 		gs.sendRPC(pid, out)
 	}
+	
+	//[jianghan]
+	if debug_catch {
+		log.Infof("[publish directpeer] flood_catch_count = %d , normal_catch_count = %d, topic = %s", flood_catch_count, normal_catch_count, topic)
+	}
+	//[/jianghan]	
 }
 
 func (gs *GossipSubRouter) Join(topic string) {
