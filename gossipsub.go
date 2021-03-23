@@ -670,7 +670,9 @@ func (gs *GossipSubRouter) handleGraft(p peer.ID, ctl *pb.ControlMessage) []*pb.
 		if direct {
 			log.Warnf("GRAFT: ignoring request from direct peer %s", p)
 			// this is possibly a bug from non-reciprocal configuration; send a PRUNE
-			prune = append(prune, topic)
+			// [jianghan] 直连节点不能被削减掉
+			// prune = append(prune, topic)
+			// [/jianghan]
 			// but don't PX
 			doPX = false
 			continue
