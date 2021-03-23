@@ -35,16 +35,16 @@ var (
 	// GossipSubD sets the optimal degree for a GossipSub topic mesh. For example, if GossipSubD == 6,
 	// each peer will want to have about six peers in their mesh for each topic they're subscribed to.
 	// GossipSubD should be set somewhere between GossipSubDlo and GossipSubDhi.
-	GossipSubD = 10
+	GossipSubD = 8
 
 	// GossipSubDlo sets the lower bound on the number of peers we keep in a GossipSub topic mesh.
 	// If we have fewer than GossipSubDlo peers, we will attempt to graft some more into the mesh at
 	// the next heartbeat.
-	GossipSubDlo = 8
+	GossipSubDlo = 6
 
 	// GossipSubDhi sets the upper bound on the number of peers we keep in a GossipSub topic mesh.
 	// If we have more than GossipSubDhi peers, we will select some to prune from the mesh at the next heartbeat.
-	GossipSubDhi = 16
+	GossipSubDhi = 10
 
 	// GossipSubDscore affects how peers are selected when pruning a mesh due to over subscription.
 	// At least GossipSubDscore of the retained peers will be high-scoring, while the remainder are
@@ -670,9 +670,7 @@ func (gs *GossipSubRouter) handleGraft(p peer.ID, ctl *pb.ControlMessage) []*pb.
 		if direct {
 			log.Warnf("GRAFT: ignoring request from direct peer %s", p)
 			// this is possibly a bug from non-reciprocal configuration; send a PRUNE
-			// [jianghan] 直连节点不能被削减掉
-			// prune = append(prune, topic)
-			// [/jianghan]
+			prune = append(prune, topic)
 			// but don't PX
 			doPX = false
 			continue
@@ -911,16 +909,20 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 	} else {
 		// direct peers
 		for p := range gs.direct {
-			_, inTopic := tmap[p]
-			if inTopic {
+			// [jianghan]直连节点不判断，直接广播
+			//_, inTopic := tmap[p]
+			//if inTopic {
+			// [/jianghan]	
 				tosend[p] = struct{}{}
 				
 				//[jianghan]
 				if debug_catch {
 					normal_catch_count++
 				}
-				//[/jianghan]				
-			}
+				//[/jianghan]
+			//[jianghan]
+			//}
+			//[/jianghan]
 		}
 
 		// floodsub peers
