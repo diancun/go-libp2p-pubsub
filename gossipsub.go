@@ -964,7 +964,7 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 	
 	//[jianghan]
 	if debug_catch {
-		log.Infof("[publish directpeer] flood_catch_count = %d , normal_catch_count = %d, topic = %s", flood_catch_count, normal_catch_count, topic)
+		log.Infof("[**publish directpeer**] flood_catch_count = %d , normal_catch_count = %d, topic = %s", flood_catch_count, normal_catch_count, topic)
 	}
 	//[/jianghan]	
 }
