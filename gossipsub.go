@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"sort"
 	"time"
+	"strings"
 
 	pb "github.com/libp2p/go-libp2p-pubsub/pb"
 
@@ -34,16 +35,16 @@ var (
 	// GossipSubD sets the optimal degree for a GossipSub topic mesh. For example, if GossipSubD == 6,
 	// each peer will want to have about six peers in their mesh for each topic they're subscribed to.
 	// GossipSubD should be set somewhere between GossipSubDlo and GossipSubDhi.
-	GossipSubD = 6
+	GossipSubD = 8
 
 	// GossipSubDlo sets the lower bound on the number of peers we keep in a GossipSub topic mesh.
 	// If we have fewer than GossipSubDlo peers, we will attempt to graft some more into the mesh at
 	// the next heartbeat.
-	GossipSubDlo = 5
+	GossipSubDlo = 6
 
 	// GossipSubDhi sets the upper bound on the number of peers we keep in a GossipSub topic mesh.
 	// If we have more than GossipSubDhi peers, we will select some to prune from the mesh at the next heartbeat.
-	GossipSubDhi = 12
+	GossipSubDhi = 10
 
 	// GossipSubDscore affects how peers are selected when pruning a mesh due to over subscription.
 	// At least GossipSubDscore of the retained peers will be high-scoring, while the remainder are
@@ -129,7 +130,7 @@ var (
 
 	// GossipSubDirectConnectTicks is the number of heartbeat ticks for attempting to reconnect direct peers
 	// that are not currently connected.
-	GossipSubDirectConnectTicks uint64 = 300
+	GossipSubDirectConnectTicks uint64 = 180
 
 	// GossipSubDirectConnectInitialDelay is the initial delay before opening connections to direct peers
 	GossipSubDirectConnectInitialDelay = time.Second
@@ -881,20 +882,47 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 		return
 	}
 
+	// [jianghan] add debug
+	// "/fil/blocks/<netid>"
+	// catch block propogador
+	debug_catch := false
+	flood_catch_count := 0
+	normal_catch_count := 0
+	if strings.Contains(topic, "blocks") {
+		debug_catch = true
+	}
+	// [/jianghan]
+	
 	if gs.floodPublish && from == gs.p.host.ID() {
 		for p := range tmap {
 			_, direct := gs.direct[p]
 			if direct || gs.score.Score(p) >= gs.publishThreshold {
 				tosend[p] = struct{}{}
+				
+				//[jianghan]
+				if debug_catch && direct {
+					flood_catch_count++
+				}
+				//[/jianghan]				
 			}
 		}
 	} else {
 		// direct peers
 		for p := range gs.direct {
-			_, inTopic := tmap[p]
-			if inTopic {
+			// [jianghan]直连节点不判断，直接广播
+			//_, inTopic := tmap[p]
+			//if inTopic {
+			// [/jianghan]	
 				tosend[p] = struct{}{}
-			}
+				
+				//[jianghan]
+				if debug_catch {
+					normal_catch_count++
+				}
+				//[/jianghan]
+			//[jianghan]
+			//}
+			//[/jianghan]
 		}
 
 		// floodsub peers
@@ -937,6 +965,12 @@ func (gs *GossipSubRouter) Publish(msg *Message) {
 
 		gs.sendRPC(pid, out)
 	}
+	
+	//[jianghan]
+	if debug_catch {
+		log.Infof("[**publish directpeer**] flood_catch_count = %d , normal_catch_count = %d, topic = %s", flood_catch_count, normal_catch_count, topic)
+	}
+	//[/jianghan]	
 }
 
 func (gs *GossipSubRouter) Join(topic string) {
