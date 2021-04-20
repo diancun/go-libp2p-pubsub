@@ -1842,6 +1842,7 @@ func peerMapToList(peers map[peer.ID]struct{}) []peer.ID {
 }
 
 func shufflePeers(peers []peer.ID) {
+	rand.Seed(time.Now().UnixNano())	
 	for i := range peers {
 		j := rand.Intn(i + 1)
 		peers[i], peers[j] = peers[j], peers[i]
@@ -1849,6 +1850,7 @@ func shufflePeers(peers []peer.ID) {
 }
 
 func shufflePeerInfo(peers []*pb.PeerInfo) {
+	rand.Seed(time.Now().UnixNano())
 	for i := range peers {
 		j := rand.Intn(i + 1)
 		peers[i], peers[j] = peers[j], peers[i]
@@ -1856,6 +1858,7 @@ func shufflePeerInfo(peers []*pb.PeerInfo) {
 }
 
 func shuffleStrings(lst []string) {
+	rand.Seed(time.Now().UnixNano())
 	for i := range lst {
 		j := rand.Intn(i + 1)
 		lst[i], lst[j] = lst[j], lst[i]
