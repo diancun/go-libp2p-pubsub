@@ -49,7 +49,9 @@ var (
 	// GossipSubDscore affects how peers are selected when pruning a mesh due to over subscription.
 	// At least GossipSubDscore of the retained peers will be high-scoring, while the remainder are
 	// chosen randomly.
-	GossipSubDscore = 4
+	// 将它改小，让更多peer能够参与轮换，而不是固定几个通讯点
+	// GossipSubDscore = 4
+	GossipSubDscore = 0	
 
 	// GossipSubDout sets the quota for the number of outbound connections to maintain in a topic mesh.
 	// When the mesh is pruned due to over subscription, we make sure that we have outbound connections
