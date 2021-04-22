@@ -44,7 +44,7 @@ var (
 
 	// GossipSubDhi sets the upper bound on the number of peers we keep in a GossipSub topic mesh.
 	// If we have more than GossipSubDhi peers, we will select some to prune from the mesh at the next heartbeat.
-	GossipSubDhi = 10
+	GossipSubDhi = 12
 
 	// GossipSubDscore affects how peers are selected when pruning a mesh due to over subscription.
 	// At least GossipSubDscore of the retained peers will be high-scoring, while the remainder are
@@ -59,13 +59,15 @@ var (
 	// our mesh with incoming connections.
 	//
 	// GossipSubDout must be set below GossipSubDlo, and must not exceed GossipSubD / 2.
-	GossipSubDout = 2
+	// GossipSubDout = 2
+	GossipSubDout = 4
 
 	// gossip parameters
 
 	// GossipSubHistoryLength controls the size of the message cache used for gossip.
 	// The message cache will remember messages for GossipSubHistoryLength heartbeats.
-	GossipSubHistoryLength = 5
+	// GossipSubHistoryLength = 5
+	GossipSubHistoryLength = 6
 
 	// GossipSubHistoryGossip controls how many cached message ids we will advertise in
 	// IHAVE gossip messages. When asked for our seen message IDs, we will return
@@ -75,7 +77,8 @@ var (
 	//
 	// GossipSubHistoryGossip must be less than or equal to GossipSubHistoryLength to
 	// avoid a runtime panic.
-	GossipSubHistoryGossip = 3
+	// GossipSubHistoryGossip = 5
+	GossipSubHistoryGossip = 4
 
 	// GossipSubDlazy affects how many peers we will emit gossip to at each heartbeat.
 	// We will send gossip to at least GossipSubDlazy peers outside our mesh. The actual
@@ -141,10 +144,12 @@ var (
 	// with opportunistic grafting. Every GossipSubOpportunisticGraftTicks we will attempt to select some
 	// high-scoring mesh peers to replace lower-scoring ones, if the median score of our mesh peers falls
 	// below a threshold (see https://godoc.org/github.com/libp2p/go-libp2p-pubsub#PeerScoreThresholds).
-	GossipSubOpportunisticGraftTicks uint64 = 60
+	// GossipSubOpportunisticGraftTicks uint64 = 60
+	GossipSubOpportunisticGraftTicks uint64 = 30
 
 	// GossipSubOpportunisticGraftPeers is the number of peers to opportunistically graft.
-	GossipSubOpportunisticGraftPeers = 2
+	// GossipSubOpportunisticGraftPeers = 2
+	GossipSubOpportunisticGraftPeers = 4
 
 	// If a GRAFT comes before GossipSubGraftFloodThreshold has elapsed since the last PRUNE,
 	// then there is an extra score penalty applied to the peer through P7.
@@ -158,7 +163,8 @@ var (
 	GossipSubMaxIHaveLength = 5000
 
 	// GossipSubMaxIHaveMessages is the maximum number of IHAVE messages to accept from a peer within a heartbeat.
-	GossipSubMaxIHaveMessages = 10
+	// GossipSubMaxIHaveMessages = 10
+	GossipSubMaxIHaveMessages = 20
 
 	// Time to wait for a message requested through IWANT following an IHAVE advertisement.
 	// If the message is not received within this window, a broken promise is declared and
